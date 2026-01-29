@@ -1,5 +1,11 @@
 import bcrypt from "bcrypt";
 import User from "../models/User.js";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import Session from "../models/Session.js";
+
+const ACCESS_TOKEN_TTL = "30m";
+const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000; // 14 days in seconds
 
 const signUp = async (req, res) => {
   try {
@@ -43,4 +49,85 @@ const signUp = async (req, res) => {
   }
 };
 
-export { signUp };
+const signIn = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ message: "Username and password are required" });
+    }
+
+    // Find user by username
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid username or password" });
+    }
+
+    // Compare provided password with stored hashed password
+    const isMatch = await bcrypt.compare(password, user.hashedPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid username or password" });
+    }
+
+    // If needed, generate JWT token here (omitted for brevity)
+    const accessToken = jwt.sign(
+      { userId: user._id, username: user.username },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: ACCESS_TOKEN_TTL },
+    );
+
+    // Create refresh token and set it in HTTP-only cookie (omitted for brevity)
+    const refreshToken = crypto.randomBytes(64).toString("hex");
+
+    await Session.create({
+      userId: user._id,
+      refreshToken,
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL),
+    });
+
+    // Create session to save refresh token (omitted for brevity)
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      maxAge: REFRESH_TOKEN_TTL,
+    });
+
+    // Return access token in response (omitted for brevity)
+    res.status(200).json({
+      message: `User ${user.displayName} signin success`,
+      accessToken,
+    });
+  } catch (error) {
+    console.error("Error during sign in:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const signOut = async (req, res) => {
+  try {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken) {
+      return res.status(400).json({ message: "Refresh token is required" });
+    }
+
+    // Delete the session associated with the refresh token
+    await Session.findOneAndDelete({ refreshToken });
+
+    // Clear the refresh token cookie
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+    });
+
+    res.status(204).json({ message: "User signed out successfully" });
+  } catch (error) {
+    console.error("Error during sign out:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export { signUp, signIn, signOut };
