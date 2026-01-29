@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./libs/db.js";
 import authRoutes from "./routes/authRoute.js";
+import userRoutes from "./routes/userRoute.js";
+import { protectedRoute } from "./middlewares/authMiddleware.js";
 import cookieParser from "cookie-parser";
 
 // Load environment variables from .env file
@@ -18,6 +20,8 @@ app.use(cookieParser()); // Middleware to parse cookies
 app.use("/api/auth", authRoutes);
 
 // private routes and middleware can be added here
+app.use(protectedRoute);
+app.use("/api/users", userRoutes);
 
 // Connect to MongoDB
 connectDB()
