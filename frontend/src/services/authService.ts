@@ -45,4 +45,13 @@ export const authService = {
     });
     return response.data.user;
   },
+
+  refreshToken: async () => {
+    const response = await instanceApi.post(
+      "/auth/refresh",
+      {},
+      { withCredentials: true },
+    );
+    return response.data;
+  },
 };

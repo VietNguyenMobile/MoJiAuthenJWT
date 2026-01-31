@@ -23,4 +23,45 @@ instanceApi.interceptors.request.use((config) => {
   return config;
 });
 
+// auto refresh token on 401 response
+instanceApi.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    // ignore if the request is to refresh token endpoint
+    if (
+      originalRequest.url.includes("/auth/signin") ||
+      originalRequest.url.includes("/auth/signup") ||
+      originalRequest.url.includes("/auth/refresh")
+    ) {
+      return Promise.reject(error);
+    }
+    originalRequest._retry = originalRequest._retry || 0;
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      originalRequest._retry < 4
+    ) {
+      originalRequest._retry += 1;
+      console.log("retry attempt:", originalRequest._retry);
+      try {
+        console.log(
+          "Axios Interceptor - 401 detected, attempting to refresh token",
+        );
+        const { refreshToken } = useAuthStore.getState();
+        await refreshToken();
+        return instanceApi(originalRequest);
+      } catch (refreshError) {
+        console.error(
+          "Axios Interceptor - Token refresh failed:",
+          refreshError,
+        );
+        useAuthStore.getState().clearState();
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  },
+);
+
 export default instanceApi;

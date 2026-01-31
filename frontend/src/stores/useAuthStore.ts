@@ -84,6 +84,28 @@ const useAuthStore = create<AuthState>((set, get) => ({
       set({ loading: false });
     }
   },
+
+  refreshToken: async () => {
+    try {
+      console.log("Refreshing access token");
+      set({ loading: true });
+      const { user } = get();
+      console.log("Current user before refresh:", user);
+
+      const data = await authService.refreshToken();
+      console.log("Refreshed token data:", data);
+      set({ accessToken: data.accessToken });
+      if (!user) {
+        await get().fetchUserProfile();
+      }
+    } catch (error) {
+      console.error("Refresh token error:", error);
+      get().clearState();
+      toast.error("Session expired. Please sign in again.");
+    } finally {
+      set({ loading: false });
+    }
+  },
 }));
 
 export default useAuthStore;

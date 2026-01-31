@@ -163,4 +163,4 @@ const refreshToken = async (req, res) => {
   }
 };
 
-export { signUp, signIn, signOut };
+export { signUp, signIn, signOut, refreshToken };

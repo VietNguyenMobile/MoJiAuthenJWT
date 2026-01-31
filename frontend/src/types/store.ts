@@ -17,4 +17,5 @@ export interface AuthState {
   signOut: () => Promise<void>;
   clearState: () => void;
   fetchUserProfile: () => Promise<void>;
+  refreshToken: () => Promise<void>;
 }
