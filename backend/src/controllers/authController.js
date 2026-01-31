@@ -90,7 +90,8 @@ const signIn = async (req, res) => {
     // Create session to save refresh token (omitted for brevity)
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "none",
       maxAge: REFRESH_TOKEN_TTL,
     });
@@ -109,23 +110,55 @@ const signIn = async (req, res) => {
 const signOut = async (req, res) => {
   try {
     const { refreshToken } = req.cookies;
-    if (!refreshToken) {
-      return res.status(400).json({ message: "Refresh token is required" });
+    console.log("Sign out refresh token:", refreshToken);
+    const token = req.cookies?.refreshToken;
+    console.log("Signing out token:", token);
+    if (token) {
+      // xoá refresh token trong Session
+      await Session.deleteOne({ refreshToken: token });
+
+      // xoá cookie
+      res.clearCookie("refreshToken");
     }
-
-    // Delete the session associated with the refresh token
-    await Session.findOneAndDelete({ refreshToken });
-
-    // Clear the refresh token cookie
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-    });
 
     res.status(204).json({ message: "User signed out successfully" });
   } catch (error) {
     console.error("Error during sign out:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Find session by refresh token
+    const session = await Session.findOne({ refreshToken });
+    if (!session || session.expiresAt < new Date()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Find user associated with the session
+    const user = await User.findById(session.userId);
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Generate new access token
+    const newAccessToken = jwt.sign(
+      { userId: user._id, username: user.username },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: ACCESS_TOKEN_TTL },
+    );
+
+    res.status(200).json({
+      accessToken: newAccessToken,
+    });
+  } catch (error) {
+    console.error("Error during token refresh:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

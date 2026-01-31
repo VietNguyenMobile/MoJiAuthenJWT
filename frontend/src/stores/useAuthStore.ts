@@ -1,0 +1,89 @@
+import { create } from "zustand";
+import { toast } from "sonner";
+import { authService } from "../services/authService";
+import type { AuthState } from "@/types/store";
+
+const useAuthStore = create<AuthState>((set, get) => ({
+  accessToken: null,
+  user: null,
+  loading: false,
+
+  clearState: () => set({ accessToken: null, user: null, loading: false }),
+
+  signUp: async (username, password, email, firstName, lastName) => {
+    try {
+      console.log("Signing up with:", {
+        username,
+        password,
+        email,
+        firstName,
+        lastName,
+      });
+      set({ loading: true });
+
+      await authService.signUp(username, password, email, firstName, lastName);
+
+      toast.success("Sign up successful! You can now sign in.");
+    } catch (error) {
+      console.error("Sign up error:", error);
+      toast.error("Sign up failed. Please try again.");
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  signIn: async (username, password) => {
+    try {
+      set({ loading: true });
+
+      const data = await authService.signIn(username, password);
+      console.log("Sign in successful, received data:", data);
+      set({ accessToken: data.accessToken });
+
+      await get().fetchUserProfile();
+
+      toast.success("Sign in successful!");
+    } catch (error) {
+      console.error("Sign in error:", error);
+      toast.error("Sign in failed. Please check your credentials.");
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  signOut: async () => {
+    try {
+      console.log("Signing out user");
+      set({ loading: true });
+
+      await authService.signOut();
+      get().clearState();
+
+      toast.success("Signed out successfully!");
+    } catch (error) {
+      console.error("Sign out error:", error);
+      toast.error("Sign out failed. Please try again.");
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  fetchUserProfile: async () => {
+    try {
+      console.log("Fetching user profile");
+      set({ loading: true });
+
+      const user = await authService.fetchUserProfile();
+      console.log("Fetched user profile:", user);
+      set({ user });
+    } catch (error) {
+      console.error("Fetch user profile error:", error);
+      set({ user: null, accessToken: null });
+      toast.error("Failed to fetch user profile.");
+    } finally {
+      set({ loading: false });
+    }
+  },
+}));
+
+export default useAuthStore;
