@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import connectDB from "./libs/db.js";
 import authRoutes from "./routes/authRoute.js";
 import userRoutes from "./routes/userRoute.js";
+import friendRoutes from "./routes/friendRoute.js";
 import { protectedRoute } from "./middlewares/authMiddleware.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -29,6 +30,7 @@ app.use("/api/auth", authRoutes);
 // private routes and middleware can be added here
 app.use(protectedRoute);
 app.use("/api/users", userRoutes);
+app.use("/api/friends", friendRoutes);
 
 // Connect to MongoDB
 connectDB()
