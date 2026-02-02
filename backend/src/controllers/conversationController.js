@@ -136,6 +136,35 @@ const getConversations = async (req, res) => {
   }
 };
 
-const getMessages = async (req, res) => {};
+const getMessages = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const { limit = 50, cursor } = req.query;
+    const userId = req.user._id;
+    const query = { conversationId };
+
+    if (cursor) {
+      query.createdAt = { $lt: new Date(cursor) };
+    }
+    let messages = await Message.find(query)
+      .sort({ createdAt: -1 })
+      .limit(Number(limit) + 1);
+    let nextCursor = null;
+    if (messages.length > limit) {
+      const nextMessage = messages[messages.length - 1];
+      nextCursor = nextMessage.createdAt.toISOString();
+      messages.pop(); // Remove the extra message
+    }
+    messages = messages.reverse(); // Reverse to chronological order
+
+    res.status(200).json({
+      messages,
+      nextCursor,
+    });
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 export { createConversation, getConversations, getMessages };
