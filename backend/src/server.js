@@ -4,6 +4,7 @@ import connectDB from "./libs/db.js";
 import authRoutes from "./routes/authRoute.js";
 import userRoutes from "./routes/userRoute.js";
 import friendRoutes from "./routes/friendRoute.js";
+import conversationRoute from "./routes/conversationRoute.js";
 import { protectedRoute } from "./middlewares/authMiddleware.js";
 import messageRoutes from "./routes/messageRoute.js";
 import cookieParser from "cookie-parser";
@@ -33,6 +34,7 @@ app.use(protectedRoute);
 app.use("/api/users", userRoutes);
 app.use("/api/friends", friendRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/conversations", conversationRoute);
 
 // Connect to MongoDB
 connectDB()
