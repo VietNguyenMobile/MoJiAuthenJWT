@@ -70,20 +70,16 @@ const conversationSchema = new mongoose.Schema(
       enum: ["direct", "group"],
       required: true,
     },
-    participants: [
-      {
-        type: [participantSchema],
-        required: true,
-      },
-    ],
+    participants: {
+      type: [participantSchema],
+      required: true,
+    },
     lastMessageAt: {
       type: Date,
       index: true,
     },
     group: {
       type: groupSchema,
-      default: "",
-      trim: true,
     },
     seenBy: [
       {

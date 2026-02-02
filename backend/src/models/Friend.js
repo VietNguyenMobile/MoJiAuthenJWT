@@ -1,50 +1,3 @@
-// import mongoose from "mongoose";
-
-// const friendSchema = new mongoose.Schema(
-//   {
-//     userA: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       ref: "User",
-//       required: true,
-//     },
-//     userB: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       ref: "User",
-//       required: true,
-//     },
-//   },
-//   { timestamps: true },
-// );
-
-// friendSchema.pre("save", function (next) {
-//   const a = this.userA.toString();
-//   const b = this.userB.toString();
-
-//   if (a > b) {
-//     this.userA = new mongoose.Types.ObjectId(b);
-//     this.userB = new mongoose.Types.ObjectId(a);
-//   }
-//   next();
-// });
-
-// // friendSchema.pre("save", function (next) {
-// //   const a = this.userA.toString();
-// //   const b = this.userB.toString();
-
-// //   if (a > b) {
-// //     this.userA = new mongoose.Types.ObjectId(b);
-// //     this.userB = new mongoose.Types.ObjectId(a);
-// //   }
-
-// //   next();
-// // });
-
-// friendSchema.index({ userA: 1, userB: 1 }, { unique: true }); // Ensure unique friendship pairs
-
-// const Friend = mongoose.model("Friend", friendSchema);
-
-// export default Friend;
-
 import mongoose from "mongoose";
 
 const friendSchema = new mongoose.Schema(
@@ -60,9 +13,7 @@ const friendSchema = new mongoose.Schema(
       required: true,
     },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
 friendSchema.pre("save", function (next) {
@@ -73,16 +24,10 @@ friendSchema.pre("save", function (next) {
     this.userA = new mongoose.Types.ObjectId(b);
     this.userB = new mongoose.Types.ObjectId(a);
   }
-
   next();
 });
 
-// schema.pre('save', function(next) {
-//   // Logic here
-//   next(); // Kareem.execPre calls this next()
-// });
-
-friendSchema.index({ userA: 1, userB: 1 }, { unique: true });
+friendSchema.index({ userA: 1, userB: 1 }, { unique: true }); // Ensure unique friendship pairs
 
 const Friend = mongoose.model("Friend", friendSchema);
 

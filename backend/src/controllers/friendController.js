@@ -150,6 +150,24 @@ const declineFriendRequest = async (req, res) => {
 
 const getFriendRequests = async (req, res) => {
   try {
+    const userId = req.user._id;
+    console.log("Getting friend requests for user ID:", userId);
+
+    const populatedRequests = "_id username displayName avatarUrl";
+
+    const [sentRequests, receivedRequests] = await Promise.all([
+      FriendRequest.find({ from: userId })
+        .populate("to", populatedRequests)
+        .lean(),
+      FriendRequest.find({ to: userId })
+        .populate("from", populatedRequests)
+        .lean(),
+    ]);
+
+    console.log("Found sent requests:", sentRequests);
+    console.log("Found received requests:", receivedRequests);
+
+    res.status(200).json({ sentRequests, receivedRequests });
   } catch (error) {
     console.error("Error get friend request:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -158,6 +176,29 @@ const getFriendRequests = async (req, res) => {
 
 const getAllFriends = async (req, res) => {
   try {
+    const userId = req.user._id;
+    console.log("Getting friends for user ID:", userId);
+
+    const friends = await Friend.find({
+      $or: [{ userA: userId }, { userB: userId }],
+    })
+      .populate("userA", "_id displayName avatarUrl")
+      .populate("userB", "_id displayName avatarUrl")
+      .lean();
+
+    console.log("Found friends:", friends);
+
+    if (!friends || friends.length === 0) {
+      return res.status(200).json({ friends: [] });
+    }
+
+    const friendIds = friends.map((friend) =>
+      friend.userA.toString() === userId.toString()
+        ? friend.userB
+        : friend.userA,
+    );
+
+    res.status(200).json({ friends: friendIds });
   } catch (error) {
     console.error("Error get all friend:", error);
     res.status(500).json({ message: "Internal server error" });
