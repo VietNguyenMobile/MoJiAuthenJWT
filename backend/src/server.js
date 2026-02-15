@@ -9,6 +9,8 @@ import { protectedRoute } from "./middlewares/authMiddleware.js";
 import messageRoutes from "./routes/messageRoute.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import fs from "fs";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -25,6 +27,12 @@ app.use(
     credentials: true, // Allow cookies to be sent
   }),
 );
+
+// Swagger API documentation setup
+const swaggerDocument = JSON.parse(
+  fs.readFileSync("./src/swagger.json", "utf8"),
+);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // public routes and middleware can be added here
 app.use("/api/auth", authRoutes);

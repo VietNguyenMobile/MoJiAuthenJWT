@@ -1,4 +1,5 @@
 import Friend from "../models/Friend.js";
+import Conversation from "../models/Conversation.js";
 
 const pair = (a, b) => {
   return a < b ? [a, b] : [b, a];
@@ -55,4 +56,37 @@ const verifyFriendship = async (req, res, next) => {
   }
 };
 
-export { verifyFriendship };
+const verifyGroupMembership = async (req, res, next) => {
+  try {
+    const userId = req.user._id.toString();
+    const { conversationId } = req.body;
+
+    if (!conversationId) {
+      return res.status(400).json({ message: "Conversation ID is required" });
+    }
+
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ message: "Conversation not found" });
+    }
+
+    const isMember = conversation.participants.some(
+      (participant) => participant.userId.toString() === userId,
+    );
+
+    if (!isMember) {
+      return res
+        .status(403)
+        .json({ message: "You are not a member of this conversation" });
+    }
+
+    req.conversation = conversation;
+
+    next();
+  } catch (error) {
+    console.error("Error verifying group membership:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export { verifyFriendship, verifyGroupMembership };

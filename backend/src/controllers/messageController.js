@@ -62,29 +62,25 @@ const sendDirectMessage = async (req, res) => {
 
 const sendGroupMessage = async (req, res) => {
   try {
-    const { toGroupId, content, imgUrl } = req.body;
-    const fromUserId = req.user._id;
+    const { conversationId, content } = req.body;
+    const senderId = req.user._id;
+    const conversation = req.conversation;
 
-    // Check if the group conversation exists
-    const conversation = await Conversation.findOne({
-      _id: toGroupId,
-      isGroupChat: true,
-    });
-
-    if (!conversation) {
-      return res.status(404).json({ message: "Group conversation not found" });
+    if (!content) {
+      return res
+        .status(400)
+        .json({ message: "Message content cannot be empty" });
     }
 
-    // Create and save the new message
-    const message = new Message({
-      conversationId: conversation._id,
-      senderId: fromUserId,
+    const message = await Message.create({
+      conversationId,
+      senderId,
       content,
-      imgUrl: imgUrl || "",
     });
-    await message.save();
+    updateConversationAfterCreateMessage(conversation, message, senderId);
+    await conversation.save();
 
-    res.status(201).json({ message, conversationId: conversation._id });
+    res.status(201).json({ message });
   } catch (error) {
     console.error("Error sending group message:", error);
     res.status(500).json({ message: "Internal server error" });

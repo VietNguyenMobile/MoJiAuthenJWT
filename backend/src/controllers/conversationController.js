@@ -1,5 +1,6 @@
 import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
+import { updateConversationAfterCreateMessage } from "../utils/messageHelper.js";
 
 const createConversation = async (req, res) => {
   try {
