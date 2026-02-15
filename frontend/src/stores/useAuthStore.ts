@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { toast } from "sonner";
 import { authService } from "../services/authService";
+import useChatStore from "./useChatStore";
 import type { AuthState } from "@/types/store";
 import { persist } from "zustand/middleware";
 
@@ -14,6 +15,7 @@ const useAuthStore = create<AuthState>()(
       clearState: () => {
         set({ accessToken: null, user: null, loading: false });
         localStorage.clear();
+        useChatStore.getState().reset(); // Clear chat state on sign out
       },
 
       signUp: async (username, password, email, firstName, lastName) => {
@@ -48,12 +50,14 @@ const useAuthStore = create<AuthState>()(
         try {
           set({ loading: true });
           localStorage.clear();
+          useChatStore.getState().reset(); // Clear chat state on sign in
 
           const data = await authService.signIn(username, password);
           console.log("Sign in successful, received data:", data);
           set({ accessToken: data.accessToken });
 
           await get().fetchUserProfile();
+          useChatStore.getState().fetchConversations(); // Fetch conversations after sign in
 
           toast.success("Sign in successful!");
         } catch (error) {
