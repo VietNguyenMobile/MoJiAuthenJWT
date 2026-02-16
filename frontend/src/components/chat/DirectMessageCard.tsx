@@ -19,7 +19,7 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
   const otherUser = convo.participants.find((p) => p._id !== user._id);
   if (!otherUser) return null;
 
-  const unReadCount = convo.unreadCounts[user._id] || 0;
+  const unReadCount = convo.unReadCounts[user._id] || 0;
   const lastMessage = convo.lastMessage?.content ?? "";
 
   const handleSelectConversation = async (id: string) => {
@@ -40,7 +40,7 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
       }
       isActive={activeConversationId === convo._id}
       onSelect={() => handleSelectConversation(convo._id)}
-      unreadCount={unReadCount}
+      unReadCount={unReadCount}
       leftSection={
         <>
           <UserAvatar
@@ -50,7 +50,7 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
           />
           <StatusBadge status="offline" />
           {/* Todo: determine online/offline status */}
-          {unReadCount > 0 && <UnreadCountBadge unreadCount={unReadCount} />}
+          {unReadCount > 0 && <UnreadCountBadge unReadCount={unReadCount} />}
           {/* Show unread count if > 0 */}
         </>
       }

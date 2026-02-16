@@ -5,6 +5,8 @@ import DirectMessageCard from "./DirectMessageCard";
 const DirectMessageList = () => {
   const { conversations } = useChatStore();
 
+  console.log("All conversations:", conversations);
+
   if (conversations.length === 0) {
     return <div>No conversations yet.</div>;
   }
@@ -12,6 +14,8 @@ const DirectMessageList = () => {
   const directConversations = conversations.filter(
     (convo) => convo.type === "direct",
   );
+
+  console.log("Direct conversations:", directConversations);
 
   return (
     <div className="flex-1 overflow-y-auto p-2 space-y-2">

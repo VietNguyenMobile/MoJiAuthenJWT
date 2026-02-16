@@ -9,7 +9,7 @@ interface ChatCardProps {
   timestamp?: Date;
   isActive: boolean;
   onSelect: (id: string) => void;
-  unreadCount?: number;
+  unReadCount?: number;
   leftSection: React.ReactNode; // avatar or group icon
   subtitle: React.ReactNode; // last message preview or participant names
 }
@@ -20,7 +20,7 @@ const ChatCard = ({
   timestamp,
   isActive,
   onSelect,
-  unreadCount = 0,
+  unReadCount = 0,
   leftSection,
   subtitle,
 }: ChatCardProps) => {
@@ -41,7 +41,7 @@ const ChatCard = ({
             <h3
               className={cn(
                 "font-semibold text-sm truncate",
-                unreadCount && unreadCount > 0 && "text-foreground",
+                unReadCount && unReadCount > 0 && "text-foreground",
               )}
             >
               {name}

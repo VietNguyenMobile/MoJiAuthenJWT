@@ -38,7 +38,7 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
       }
       isActive={activeConversationId === convo._id}
       onSelect={handleSelectConversation}
-      unreadCount={unReadCount}
+      unReadCount={unReadCount}
       leftSection={<></>}
       subtitle={
         <p className="text-sm truncate text-muted-foreground">

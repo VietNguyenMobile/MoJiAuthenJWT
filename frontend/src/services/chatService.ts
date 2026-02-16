@@ -6,6 +6,8 @@ export const chatService = {
     const response = await instanceApi.get("/conversations", {
       withCredentials: true,
     });
+
+    console.log("Fetched conversations response:", response);
     return response.data;
   },
 };

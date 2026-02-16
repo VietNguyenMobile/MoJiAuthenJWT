@@ -8,8 +8,12 @@ const pair = (a, b) => {
 const verifyFriendship = async (req, res, next) => {
   try {
     const userId = req.user._id.toString();
-    const { recipientId } = req.body;
+    // const { recipientId } = req.body;
+    const recipientId = req.body?.recipientId ?? null;
     const memberIds = req.body?.memberIds ?? [];
+
+    console.log("userId:", userId);
+    console.log("memberIds:", memberIds);
 
     if (!recipientId && memberIds.length === 0) {
       return res
@@ -17,21 +21,34 @@ const verifyFriendship = async (req, res, next) => {
         .json({ message: "Recipient ID is required and memberIds" });
     }
 
+    if (recipientId) {
+      const [userA, userB] = pair(userId, recipientId);
+
+      const isFriend = await Friend.findOne({ userA, userB });
+      console.log("isFriend:", isFriend);
+      if (!isFriend) {
+        return res
+          .status(403)
+          .json({ message: "Bạn chưa kết bạn với người này" });
+      }
+
+      return next();
+    }
+
     let userA = userId;
     let userB = recipientId;
 
     // Ensure consistent ordering
-    const [userAOrdered, userBOrdered] = pair(userA, userB);
-
-    const friendship = await Friend.findOne({
-      userA: userAOrdered,
-      userB: userBOrdered,
-    });
-    if (!friendship) {
-      return res
-        .status(403)
-        .json({ message: "You can only message your friends" });
-    }
+    // const [userAOrdered, userBOrdered] = pair(userA, userB);
+    // const friendship = await Friend.findOne({
+    //   userA: userAOrdered,
+    //   userB: userBOrdered,
+    // });
+    // if (!friendship) {
+    //   return res
+    //     .status(403)
+    //     .json({ message: "You can only message your friends" });
+    // }
 
     const friendChecks = memberIds.map(async (memberId) => {
       const [a, b] = pair(userId, memberId);
