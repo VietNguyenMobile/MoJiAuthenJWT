@@ -24,7 +24,6 @@ const ChatAppPage = () => {
       <div className="flex h-screen w-full p-2">
         <ChatWindowLayout />
       </div>
-      <Button onClick={handleLogOut}>Logout</Button>
     </SidebarProvider>
   );
 };

@@ -6,8 +6,8 @@ const ProtectedRoute = () => {
   const { accessToken, user, loading, refreshToken, fetchUserProfile } =
     useAuthStore();
 
-  console.log("ProtectedRoute - accessToken:", accessToken);
-  console.log("ProtectedRoute - user:", user);
+  // console.log("ProtectedRoute - accessToken:", accessToken);
+  // console.log("ProtectedRoute - user:", user);
 
   const [starting, setStarting] = useState(true);
 

@@ -3,17 +3,23 @@ import type { Conversation } from "@/types/chat";
 import ChatCard from "./ChatCard";
 import useAuthStore from "@/stores/useAuthStore";
 import useChatStore from "@/stores/useChatStore";
+import GroupChatAvatar from "./GroupChatAvatar";
+import UnreadCountBadge from "./UnreadCountBadge";
 import { cn } from "@/lib/utils";
 
 const GroupChatCard = ({ convo }: { convo: Conversation }) => {
   const { user } = useAuthStore();
 
-  console.log("GroupChatCard - convo:", convo);
-  console.log("GroupChatCard - user:", user);
+  // console.log("GroupChatCard - convo:", convo);
+  // console.log("GroupChatCard - user:", user);
 
   if (!user) return null;
-  const { activeConversationId, setActiveConversation, messages } =
-    useChatStore();
+  const {
+    activeConversationId,
+    setActiveConversation,
+    messages,
+    fetchMessages,
+  } = useChatStore();
 
   const unReadCount = convo.unReadCounts[user._id] || 0;
   const lastMessage = convo.lastMessage?.content ?? "";
@@ -22,6 +28,7 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
     setActiveConversation(id);
     if (!messages[id]) {
       // fetch messages for this conversation
+      await fetchMessages(id);
     }
   };
 
@@ -39,7 +46,12 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
       isActive={activeConversationId === convo._id}
       onSelect={handleSelectConversation}
       unReadCount={unReadCount}
-      leftSection={<></>}
+      leftSection={
+        <>
+          {unReadCount > 0 && <UnreadCountBadge unReadCount={unReadCount} />}
+          <GroupChatAvatar participants={convo.participants} type="chat" />
+        </>
+      }
       subtitle={
         <p className="text-sm truncate text-muted-foreground">
           {convo.participants.length} members

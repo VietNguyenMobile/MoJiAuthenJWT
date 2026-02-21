@@ -5,7 +5,7 @@ import DirectMessageCard from "./DirectMessageCard";
 const DirectMessageList = () => {
   const { conversations } = useChatStore();
 
-  console.log("All conversations:", conversations);
+  // console.log("All conversations:", conversations);
 
   if (conversations.length === 0) {
     return <div>No conversations yet.</div>;
@@ -15,12 +15,12 @@ const DirectMessageList = () => {
     (convo) => convo.type === "direct",
   );
 
-  console.log("Direct conversations:", directConversations);
+  // console.log("Direct conversations:", directConversations);
 
   return (
     <div className="flex-1 overflow-y-auto p-2 space-y-2">
       {directConversations.map((convo) => (
-        <DirectMessageCard convo={convo} />
+        <DirectMessageCard key={convo._id} convo={convo} />
       ))}
     </div>
   );
