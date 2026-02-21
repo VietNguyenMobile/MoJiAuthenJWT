@@ -11,11 +11,12 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
+import { io, server, app } from "./socket/index.js";
 
 // Load environment variables from .env file
 dotenv.config();
 
-const app = express();
+// const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware to parse JSON requests
@@ -48,7 +49,7 @@ app.use("/api/conversations", conversationRoute);
 connectDB()
   .then(() => {
     // Start the server after successful DB connection
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
     });
   })
