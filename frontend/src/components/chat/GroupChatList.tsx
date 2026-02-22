@@ -1,9 +1,13 @@
-import React from "react";
 import useChatStore from "@/stores/useChatStore";
 import GroupChatCard from "./GroupChatCard";
 
 const GroupChatList = () => {
   const { conversations } = useChatStore();
+  console.log("conversations in GroupChatList:", conversations);
+
+  if (!conversations) return;
+
+  // console.log("conversations in GroupChatList:", conversations);
   if (!conversations || conversations.length === 0) {
     return <div>No group conversations yet.</div>;
   }

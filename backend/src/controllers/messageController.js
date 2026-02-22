@@ -2,7 +2,11 @@ import Friend from "../models/Friend.js";
 import User from "../models/User.js";
 import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
-import { updateConversationAfterCreateMessage } from "../utils/messageHelper.js";
+import {
+  updateConversationAfterCreateMessage,
+  emitNewMessage,
+} from "../utils/messageHelper.js";
+import { io } from "../socket/index.js";
 
 const sendDirectMessage = async (req, res) => {
   try {
@@ -53,6 +57,9 @@ const sendDirectMessage = async (req, res) => {
 
     updateConversationAfterCreateMessage(conversation, message, senderId);
     await conversation.save();
+
+    emitNewMessage(io, conversation, message);
+
     res.status(201).json({ message });
   } catch (error) {
     console.error("Error sending direct message:", error);
@@ -79,6 +86,8 @@ const sendGroupMessage = async (req, res) => {
     });
     updateConversationAfterCreateMessage(conversation, message, senderId);
     await conversation.save();
+
+    emitNewMessage(io, conversation, message);
 
     res.status(201).json({ message });
   } catch (error) {

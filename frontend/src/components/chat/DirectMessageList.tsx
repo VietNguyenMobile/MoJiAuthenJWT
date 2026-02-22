@@ -7,6 +7,8 @@ const DirectMessageList = () => {
 
   // console.log("All conversations:", conversations);
 
+  if (!conversations) return;
+
   if (conversations.length === 0) {
     return <div>No conversations yet.</div>;
   }

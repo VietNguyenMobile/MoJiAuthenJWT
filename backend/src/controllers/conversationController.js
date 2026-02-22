@@ -168,4 +168,24 @@ const getMessages = async (req, res) => {
   }
 };
 
-export { createConversation, getConversations, getMessages };
+const getUserConversationsForSocketIO = async (userId) => {
+  try {
+    const conversations = await Conversation.find(
+      {
+        "participants.userId": userId,
+      },
+      { _id: 1 },
+    ); // Only fetch the conversation IDs
+    return conversations.map((convo) => convo._id.toString());
+  } catch (error) {
+    console.error("Error fetching user conversations for Socket.IO:", error);
+    return [];
+  }
+};
+
+export {
+  createConversation,
+  getConversations,
+  getMessages,
+  getUserConversationsForSocketIO,
+};

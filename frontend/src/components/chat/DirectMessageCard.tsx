@@ -1,4 +1,3 @@
-import React from "react";
 import type { Conversation } from "@/types/chat";
 import ChatCard from "./ChatCard";
 import useAuthStore from "@/stores/useAuthStore";
@@ -8,6 +7,7 @@ import StatusBadge from "./StatusBadge";
 import UnreadCountBadge from "./UnreadCountBadge";
 import { cn } from "@/lib/utils";
 import { User } from "lucide-react";
+import useSocketStore from "@/stores/useSocketStore";
 
 const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
   const { user } = useAuthStore();
@@ -17,6 +17,7 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
     messages,
     fetchMessages,
   } = useChatStore();
+  const { onlineUsers } = useSocketStore();
 
   if (!user) return null;
 
@@ -53,7 +54,11 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
             name={otherUser.displayName ?? ""}
             avatarUrl={otherUser.avatarUrl ?? undefined}
           />
-          <StatusBadge status="offline" />
+          <StatusBadge
+            status={
+              onlineUsers.includes(otherUser?._id ?? "") ? "online" : "offline"
+            }
+          />
           {/* Todo: determine online/offline status */}
           {unReadCount > 0 && <UnreadCountBadge unReadCount={unReadCount} />}
           {/* Show unread count if > 0 */}

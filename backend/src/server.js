@@ -11,7 +11,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
-import { io, server, app } from "./socket/index.js";
+import { server, app } from "./socket/index.js";
 
 // Load environment variables from .env file
 dotenv.config();

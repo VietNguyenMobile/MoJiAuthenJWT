@@ -12,7 +12,7 @@ const instanceApi = axios.create({
 // set access token to header before request is sent
 instanceApi.interceptors.request.use((config) => {
   const { accessToken } = useAuthStore.getState();
-  console.log("Axios Interceptor - Access Token:", accessToken);
+  // console.log("Axios Interceptor - Access Token:", accessToken);
   if (accessToken && config.headers) {
     config.headers["Authorization"] = `Bearer ${accessToken}`;
   }

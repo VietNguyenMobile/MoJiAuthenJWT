@@ -32,7 +32,7 @@ const useSocketStore = create<SocketState>((set, get) => ({
     });
 
     // new message
-    socket.on("new-message", ({ message, conversation, unreadCounts }) => {
+    socket.on("new-message", ({ message, conversation, unReadCounts }) => {
       useChatStore.getState().addMessage(message);
 
       const lastMessage = {
@@ -49,13 +49,14 @@ const useSocketStore = create<SocketState>((set, get) => ({
       const updatedConversation = {
         ...conversation,
         lastMessage,
-        unreadCounts,
+        unReadCounts,
       };
 
       if (
         useChatStore.getState().activeConversationId === message.conversationId
       ) {
-        useChatStore.getState().markAsSeen();
+        // mark as seen if user is currently viewing this conversation
+        // useChatStore.getState().markAsSeen();
       }
 
       useChatStore.getState().updateConversation(updatedConversation);
